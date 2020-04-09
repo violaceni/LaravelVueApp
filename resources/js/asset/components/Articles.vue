@@ -5,7 +5,7 @@
                 <div class="card">
                     <div class="card-header"> Add Article</div>
                     <div class="card-body">
-                        <form>
+                        <form @submit.prevent="addArticle" class="mb-3">
                             <div class="form-group">
                                 <input type="text" class="form-control" placeholder="Title" v-model="article.title">
                             </div>
@@ -34,10 +34,14 @@
                         </ul>
                     </nav>
                     <div class = "card card-body mb-2" v-for="article in articles" v-bind:key="article.id">
-                       <h3>{{article.title}}</h3>
+                        <h3>{{article.title}}</h3>
                         <p>{{article.body}}</p>
                         <hr>
-                        <button class="btn btn-danger col-md-2" @click="deleteArticle(article.id)">Delete</button>
+                        <div class="row">
+                            <div class="col-md-9"></div>
+                            <button class="btn btn-info col-md-1" @click="editArticle(article)">E</button>
+                            <button class="btn btn-danger col-md-1" @click="deleteArticle(article.id)">X</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -97,6 +101,50 @@
                     })
                     .catch(err => console.log(err));
                 }
+            },
+            addArticle(){
+                if(this.edit === false){
+                    fetch('api/article',{
+                        method:'post',
+                        body: JSON.stringify(this.article),
+                        headers:{
+                            'content-type' : 'application/json'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.article.title = '';
+                        this.article.body = '';
+                        alert("Article added");
+                        this.fetchArticles();
+                    })
+                    .catch(err => console.log(err));
+                }
+                else{
+                    fetch('api/article',{
+                        method:'put',
+                        body: JSON.stringify(this.article),
+                        headers:{
+                            'content-type' : 'application/json'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        this.article.title = '';
+                        this.article.body = '';
+                        alert("Article edited");
+                        this.fetchArticles();
+                    })
+                    .catch(err => console.log(err));
+
+                }
+            },
+            editArticle(article){
+                this.edit = true;
+                this.article.id = article.id;
+                this.article.article_id = article.id;
+                this.article.title = article.title;
+                this.article.body = article.body;
             }
         }
     }
